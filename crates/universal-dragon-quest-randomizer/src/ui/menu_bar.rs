@@ -59,6 +59,9 @@ impl MenuBar {
                         ui.send_viewport_cmd(egui::ViewportCommand::Close);
                     }
                 });
+
+                ui.menu_button("Help", |ui| {
+                });
             });
         });
     }
