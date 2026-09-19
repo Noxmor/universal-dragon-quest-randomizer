@@ -4,7 +4,7 @@ use eframe::egui;
 
 mod ui;
 
-const APP_TITLE: &str = "Universal Dragon Quest Randomizer";
+pub const APP_TITLE: &str = "Universal Dragon Quest Randomizer";
 
 pub fn run() -> eframe::Result {
     let native_options = eframe::NativeOptions {

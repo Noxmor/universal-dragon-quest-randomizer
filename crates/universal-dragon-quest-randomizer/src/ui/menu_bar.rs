@@ -4,6 +4,8 @@ use eframe::egui;
 use egui_async::Bind;
 use rfd::AsyncFileDialog;
 
+use crate::ui::AboutDialog;
+
 const OPEN_ROM_SHORTCUT: crate::egui::KeyboardShortcut =
     egui::KeyboardShortcut::new(egui::Modifiers::COMMAND, egui::Key::O);
 
@@ -12,12 +14,14 @@ const QUIT_SHORTCUT: egui::KeyboardShortcut =
 
 pub struct MenuBar {
     open_rom: Bind<Option<PathBuf>, ()>,
+    about_dialog: AboutDialog,
 }
 
 impl MenuBar {
     pub fn new() -> Self {
         Self {
             open_rom: Bind::new(true),
+            about_dialog: AboutDialog::new(),
         }
     }
 
@@ -59,8 +63,16 @@ impl MenuBar {
                         ui.send_viewport_cmd(egui::ViewportCommand::Close);
                     }
                 });
+
+                ui.menu_button("Help", |ui| {
+                    if ui.add(egui::Button::new("About")).clicked() {
+                        self.about_dialog.open();
+                    }
+                });
             });
         });
+
+        self.about_dialog.render(ui);
     }
 
     pub fn retrieve_open_rom(&mut self) -> &mut Bind<Option<PathBuf>, ()> {
