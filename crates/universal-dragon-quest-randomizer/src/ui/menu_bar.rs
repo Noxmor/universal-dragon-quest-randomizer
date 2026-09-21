@@ -4,7 +4,7 @@ use eframe::egui;
 use egui_async::Bind;
 use rfd::AsyncFileDialog;
 
-use crate::ui::AboutDialog;
+use crate::{rom, ui::AboutDialog};
 
 const OPEN_ROM_SHORTCUT: crate::egui::KeyboardShortcut =
     egui::KeyboardShortcut::new(egui::Modifiers::COMMAND, egui::Key::O);
@@ -75,8 +75,16 @@ impl MenuBar {
         self.about_dialog.render(ui);
     }
 
-    pub fn retrieve_open_rom(&mut self) -> &mut Bind<Option<PathBuf>, ()> {
-        &mut self.open_rom
+    pub fn retrieve_rom(&mut self) -> Option<Result<rom::Rom, rom::RomError>> {
+        if let Some(Ok(Some(path))) = self.open_rom.take() {
+            return Some(rom::RomLoader::new(path).load());
+        }
+
+        None
+    }
+
+    pub fn is_pending(&mut self) -> bool {
+        self.open_rom.is_pending()
     }
 
     fn request_open_rom(&mut self) {

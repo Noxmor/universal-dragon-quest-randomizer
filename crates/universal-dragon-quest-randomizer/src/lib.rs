@@ -1,7 +1,6 @@
-use std::path::{Path, PathBuf};
-
 use eframe::egui;
 
+mod rom;
 mod ui;
 
 pub const APP_TITLE: &str = "Universal Dragon Quest Randomizer";
@@ -25,28 +24,16 @@ pub fn run() -> eframe::Result {
 }
 
 struct App {
-    rom_path: Option<PathBuf>,
+    rom: Option<Result<rom::Rom, rom::RomError>>,
     menu_bar: ui::MenuBar,
 }
 
 impl Default for App {
     fn default() -> Self {
         Self {
-            rom_path: None,
+            rom: None,
             menu_bar: ui::MenuBar::new(),
         }
-    }
-}
-
-impl App {
-    fn handle_open_rom_result(&mut self) {
-        if let Some(Ok(Some(path))) = self.menu_bar.retrieve_open_rom().take() {
-            self.set_rom(path);
-        }
-    }
-
-    fn set_rom(&mut self, path: PathBuf) {
-        self.rom_path = Some(path);
     }
 }
 
@@ -55,7 +42,9 @@ impl eframe::App for App {
         ctx.plugin_or_default::<egui_async::EguiAsyncPlugin>();
 
         self.menu_bar.update(ctx);
-        self.handle_open_rom_result();
+        if let Some(rom) = self.menu_bar.retrieve_rom() {
+            self.rom = Some(rom);
+        }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
@@ -70,21 +59,19 @@ impl eframe::App for App {
                 ui.heading(APP_TITLE);
                 ui.add_space(12.0);
 
-                if self.menu_bar.retrieve_open_rom().is_pending() {
+                if self.menu_bar.is_pending() {
                     ui.add_space(12.0);
                     ui.spinner();
                     ui.label("Waiting for file selection…");
-                } else if let Some(path) = &self.rom_path {
+
                     ui.add_space(16.0);
-                    ui.label(format!("Selected ROM: {}", display_name(path)));
+                } else if let Some(Ok(rom)) = &self.rom {
+                    let name = "placeholder name";
+                    ui.label(format!("Selected ROM: {}", name));
+                } else if let Some(Err(e)) = &self.rom {
+                    ui.label(format!("Error loading ROM: {e}"));
                 }
             });
         });
     }
-}
-
-fn display_name(path: &Path) -> &str {
-    path.file_name()
-        .and_then(|name| name.to_str())
-        .unwrap_or("Unknown file")
 }
