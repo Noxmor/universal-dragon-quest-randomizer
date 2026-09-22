@@ -10,6 +10,7 @@ egui-async = "0.6.0"
 rfd = "0.17.2"
 sha2 = "0.10"
 thiserror = "2"
+strum = { version = "0.28", features = ["derive"] }
 
 [build-dependencies]
 serde = { version = "1", features = ["derive"] }

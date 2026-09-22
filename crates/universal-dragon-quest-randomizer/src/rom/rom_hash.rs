@@ -13,6 +13,10 @@ impl RomHash {
         Self(hash)
     }
 
+    pub const fn from_raw(hash: [u8; 32]) -> Self {
+        Self(hash)
+    }
+
     pub const fn as_bytes(&self) -> &[u8; 32] {
         &self.0
     }

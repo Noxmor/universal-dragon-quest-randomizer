@@ -3,3 +3,75 @@
 # ==============================================================================
 #
 # This file contains the known ROM releases used by the ROM detection system.
+[[rom]]
+sha256 = "a7fa40ba5f2061e6da5ded7c9864d8642f66dbba0c3e4fe267701f298497c20c"
+id = "DragonQuestMonstersJoker1"
+platform = "Nds"
+format = "Nds"
+region = "Japan"
+revision = 0
+
+[[rom]]
+sha256 = "9c6295eb95cdb72618dae45019b3aa02aa926f74368b2f79eaaa0d6e728368a7"
+id = "DragonQuestMonstersJoker1"
+platform = "Nds"
+format = "Nds"
+region = "Europe"
+revision = 0
+
+[[rom]]
+sha256 = "2d11475a7c392567bfc2cdaa944826a79b36686fc85d7cc0e86b7c755ff32f6f"
+id = "DragonQuestMonstersJoker1"
+platform = "Nds"
+format = "Nds"
+region = "Usa"
+revision = 0
+
+[[rom]]
+sha256 = "e68c3af4182860480843a85ac321baa8898a87225f6b502b6bf72759be043fda"
+id = "DragonQuestMonstersJoker2"
+platform = "Nds"
+format = "Nds"
+region = "Japan"
+revision = 0
+
+[[rom]]
+sha256 = "fd68a683238b6a837f95476c96e7a9b172dac8d12bf3046b7c0a57b32752cebb"
+id = "DragonQuestMonstersJoker2"
+platform = "Nds"
+format = "Nds"
+region = "Europe"
+revision = 0
+
+[[rom]]
+sha256 = "95dda06ed0a889effc57dac9633c9e35555733c7282060db120ed272d5842c5f"
+id = "DragonQuestMonstersJoker2"
+platform = "Nds"
+format = "Nds"
+region = "Usa"
+revision = 0
+
+[[rom]]
+sha256 = "6ef283df7e4537f18644b9e3ce9d1e10de484f168535c7b1eaa7811711273e13"
+id = "DragonQuestMonstersJoker2P"
+platform = "Nds"
+format = "Nds"
+region = "Japan"
+revision = 0
+
+[[rom]]
+sha256 = "1ce991d57ab64f99da16941baa785077d0250cb9279528f87ef1cd298d2a753c"
+id = "DragonQuestMonstersJoker3"
+platform = "ThreeDs"
+format = "ThreeDs"
+region = "Japan"
+revision = 0
+
+[[rom]]
+sha256 = "e3e70991c268571d1f4558a4fbc14e72d6ba047a89f98511fb47db0b559cddbb"
+id = "DragonQuestMonstersJoker3P"
+platform = "ThreeDs"
+format = "ThreeDs"
+region = "Japan"
+revision = 0
+
