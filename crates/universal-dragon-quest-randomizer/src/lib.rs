@@ -66,8 +66,9 @@ impl eframe::App for App {
 
                     ui.add_space(16.0);
                 } else if let Some(Ok(rom)) = &self.rom {
-                    let name = "placeholder name";
-                    ui.label(format!("Selected ROM: {}", name));
+                    let name = &rom.definition().id;
+                    let region = &rom.definition().region;
+                    ui.label(format!("Selected ROM: {name} ({region})"));
                 } else if let Some(Err(e)) = &self.rom {
                     ui.label(format!("Error loading ROM: {e}"));
                 }
