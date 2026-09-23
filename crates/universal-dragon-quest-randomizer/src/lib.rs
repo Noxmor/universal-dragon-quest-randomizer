@@ -1,5 +1,6 @@
 use eframe::egui;
 
+mod randomizer;
 mod rom;
 mod ui;
 
