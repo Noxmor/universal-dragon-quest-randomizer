@@ -23,16 +23,24 @@ pub fn run() -> eframe::Result {
     )
 }
 
+enum RomState {
+    Empty,
+    Pending,
+    Loaded(Result<rom::Rom, rom::RomError>),
+}
+
 struct App {
-    rom: Option<Result<rom::Rom, rom::RomError>>,
+    rom: RomState,
     menu_bar: ui::MenuBar,
+    editor: ui::Editor,
 }
 
 impl Default for App {
     fn default() -> Self {
         Self {
-            rom: None,
+            rom: RomState::Empty,
             menu_bar: ui::MenuBar::new(),
+            editor: ui::Editor::new(),
         }
     }
 }
@@ -42,37 +50,16 @@ impl eframe::App for App {
         ctx.plugin_or_default::<egui_async::EguiAsyncPlugin>();
 
         self.menu_bar.update(ctx);
-        if let Some(rom) = self.menu_bar.retrieve_rom() {
-            self.rom = Some(rom);
+
+        if self.menu_bar.is_pending() {
+            self.rom = RomState::Pending;
+        } else if let Some(rom) = self.menu_bar.retrieve_rom() {
+            self.rom = RomState::Loaded(rom);
         }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         self.menu_bar.render(ui);
-
-        egui::CentralPanel::default().show(ui, |ui| {
-            let available_height = ui.available_height();
-
-            ui.vertical_centered(|ui| {
-                ui.add_space((available_height * 0.28).max(48.0));
-
-                ui.heading(APP_TITLE);
-                ui.add_space(12.0);
-
-                if self.menu_bar.is_pending() {
-                    ui.add_space(12.0);
-                    ui.spinner();
-                    ui.label("Waiting for file selection…");
-
-                    ui.add_space(16.0);
-                } else if let Some(Ok(rom)) = &self.rom {
-                    let name = &rom.definition().id;
-                    let region = &rom.definition().region;
-                    ui.label(format!("Selected ROM: {name} ({region})"));
-                } else if let Some(Err(e)) = &self.rom {
-                    ui.label(format!("Error loading ROM: {e}"));
-                }
-            });
-        });
+        self.editor.render(ui, &self.rom);
     }
 }
