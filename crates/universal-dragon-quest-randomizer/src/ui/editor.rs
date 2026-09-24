@@ -54,6 +54,14 @@ impl Editor {
                         ui.spinner();
                         ui.label("Waiting for file selection…");
                     }
+                    RomState::Loading => {
+                        ui.add_space((available_height * 0.28).max(48.0));
+
+                        ui.heading(APP_TITLE);
+                        ui.add_space(12.0);
+                        ui.spinner();
+                        ui.label("Verifying ROM…");
+                    }
                     RomState::Loaded(rom) => match rom {
                         Ok(rom) => {
                             ui.add_space(12.0);

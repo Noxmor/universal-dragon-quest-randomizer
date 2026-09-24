@@ -75,9 +75,9 @@ impl MenuBar {
         self.about_dialog.render(ui);
     }
 
-    pub fn retrieve_rom(&mut self) -> Option<Result<rom::Rom, rom::RomError>> {
+    pub fn retrieve_rom(&mut self) -> Option<PathBuf> {
         if let Some(Ok(Some(path))) = self.open_rom.take() {
-            return Some(rom::RomLoader::new(path).load());
+            return Some(path);
         }
 
         None
