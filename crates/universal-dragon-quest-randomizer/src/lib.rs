@@ -2,6 +2,8 @@ use eframe::egui;
 use std::path::PathBuf;
 use std::sync::mpsc::{self, Receiver, Sender};
 
+use crate::randomizer::RandomizerSettings;
+
 mod randomizer;
 mod rom;
 mod ui;
@@ -37,6 +39,7 @@ struct App {
     rom: RomState,
     rom_tx: Sender<Result<rom::Rom, rom::RomError>>,
     rom_rx: Receiver<Result<rom::Rom, rom::RomError>>,
+    settings: RandomizerSettings,
     menu_bar: ui::MenuBar,
     editor: ui::Editor,
 }
@@ -48,6 +51,7 @@ impl Default for App {
             rom: RomState::Empty,
             rom_tx,
             rom_rx,
+            settings: RandomizerSettings::default(),
             menu_bar: ui::MenuBar::new(),
             editor: ui::Editor::new(),
         }
@@ -81,6 +85,6 @@ impl eframe::App for App {
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         self.menu_bar.render(ui);
-        self.editor.render(ui, &self.rom);
+        self.editor.render(ui, &self.rom, &mut self.settings);
     }
 }
