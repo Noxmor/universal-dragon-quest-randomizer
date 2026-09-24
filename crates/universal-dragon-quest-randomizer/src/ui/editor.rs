@@ -98,6 +98,10 @@ impl Editor {
     fn render_rom_information(&self, ui: &mut egui::Ui, rom: &Rom) {
         egui::Frame::group(ui.style())
             .inner_margin(egui::Margin::same(12))
+            .stroke(egui::Stroke::new(
+                2.0,
+                ui.style().visuals.widgets.noninteractive.bg_stroke.color,
+            ))
             .show(ui, |ui| {
                 ui.horizontal(|ui| {
                     ui.heading("ROM Information");
@@ -140,6 +144,10 @@ impl Editor {
     fn render_general(&mut self, ui: &mut egui::Ui, settings: &mut RandomizerSettings) {
         egui::Frame::group(ui.style())
             .inner_margin(egui::Margin::same(12))
+            .stroke(egui::Stroke::new(
+                2.0,
+                ui.style().visuals.widgets.noninteractive.bg_stroke.color,
+            ))
             .show(ui, |ui| {
                 ui.heading("General");
 
@@ -214,6 +222,10 @@ impl Editor {
     fn render_settings_editor(&mut self, ui: &mut egui::Ui) {
         egui::Frame::group(ui.style())
             .inner_margin(egui::Margin::same(12))
+            .stroke(egui::Stroke::new(
+                2.0,
+                ui.style().visuals.widgets.noninteractive.bg_stroke.color,
+            ))
             .show(ui, |ui| {
                 ui.horizontal(|ui| {
                     ui.heading("Randomization");
