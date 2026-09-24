@@ -24,6 +24,9 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
 
+      - name: Check dependencies
+        uses: EmbarkStudios/cargo-deny-action@v2
+
       - name: Run clippy
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
