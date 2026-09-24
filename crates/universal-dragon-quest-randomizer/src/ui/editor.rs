@@ -4,7 +4,6 @@ use crate::{
     rom::Rom,
 };
 use eframe::egui;
-use rand::RngCore;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 

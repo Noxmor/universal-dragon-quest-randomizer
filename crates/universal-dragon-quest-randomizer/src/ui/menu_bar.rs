@@ -4,7 +4,7 @@ use eframe::egui;
 use egui_async::Bind;
 use rfd::AsyncFileDialog;
 
-use crate::{rom, ui::AboutDialog};
+use crate::ui::AboutDialog;
 
 const OPEN_ROM_SHORTCUT: crate::egui::KeyboardShortcut =
     egui::KeyboardShortcut::new(egui::Modifiers::COMMAND, egui::Key::O);
