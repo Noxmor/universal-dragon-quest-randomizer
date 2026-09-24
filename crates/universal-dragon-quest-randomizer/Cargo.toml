@@ -11,6 +11,7 @@ rfd = "0.17.2"
 sha2 = "0.10"
 thiserror = "2"
 strum = { version = "0.28", features = ["derive"] }
+strum_macros = "0.28"
 
 [build-dependencies]
 serde = { version = "1", features = ["derive"] }

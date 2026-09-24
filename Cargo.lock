@@ -3343,6 +3343,7 @@ dependencies = [
  "serde",
  "sha2",
  "strum",
+ "strum_macros",
  "syn 2.0.119",
  "thiserror 2.0.20",
  "toml",
