@@ -1,5 +1,10 @@
-use crate::{APP_TITLE, RomState, rom::Rom};
+use crate::{
+    APP_TITLE, RomState,
+    randomizer::{RandomizerSettings, Seed},
+    rom::Rom,
+};
 use eframe::egui;
+use rand::RngCore;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
@@ -34,7 +39,7 @@ impl Editor {
             seed: String::new(),
         }
     }
-    pub fn render(&mut self, ui: &mut egui::Ui, rom: &RomState) {
+    pub fn render(&mut self, ui: &mut egui::Ui, rom: &RomState, settings: &mut RandomizerSettings) {
         egui::CentralPanel::default().show(ui, |ui| {
             let available_height = ui.available_height();
 
@@ -70,7 +75,7 @@ impl Editor {
 
                             ui.columns(2, |columns| {
                                 self.render_rom_information(&mut columns[0], rom);
-                                self.render_general(&mut columns[1]);
+                                self.render_general(&mut columns[1], settings);
                             });
 
                             ui.add_space(12.0);
@@ -132,7 +137,7 @@ impl Editor {
             });
     }
 
-    fn render_general(&mut self, ui: &mut egui::Ui) {
+    fn render_general(&mut self, ui: &mut egui::Ui, settings: &mut RandomizerSettings) {
         egui::Frame::group(ui.style())
             .inner_margin(egui::Margin::same(12))
             .show(ui, |ui| {
@@ -148,16 +153,38 @@ impl Editor {
                         ui.label("Seed");
 
                         ui.horizontal(|ui| {
+                            let seed_width = ui.fonts_mut(|fonts| {
+                                fonts.glyph_width(&egui::TextStyle::Body.resolve(ui.style()), '0')
+                                    * 20.0
+                            });
+
                             let response = ui.add(
-                                egui::TextEdit::singleline(&mut self.seed).desired_width(140.0),
+                                egui::TextEdit::singleline(&mut self.seed)
+                                    .desired_width(seed_width + 16.0)
+                                    .char_limit(20),
                             );
 
-                            if response.lost_focus() {
-                                // TODO: Apply seed
+                            if response.changed() {
+                                self.seed.retain(|c| c.is_ascii_digit());
+                            }
+
+                            if response.lost_focus() && !self.seed.is_empty() {
+                                match self.seed.parse::<Seed>() {
+                                    Ok(seed) => {
+                                        settings.seed = seed;
+                                    }
+                                    Err(_) => {
+                                        self.seed = u64::MAX.to_string();
+                                        settings.seed = u64::MAX;
+                                    }
+                                }
                             }
 
                             if ui.button("🎲").clicked() {
-                                // TODO: Generate seed
+                                let seed: Seed = rand::random();
+
+                                self.seed = seed.to_string();
+                                settings.seed = seed;
                             }
                         });
 
