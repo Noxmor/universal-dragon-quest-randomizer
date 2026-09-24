@@ -1,5 +1,4 @@
 use eframe::egui;
-use std::path::PathBuf;
 use std::sync::mpsc::{self, Receiver, Sender};
 
 use crate::randomizer::RandomizerSettings;
