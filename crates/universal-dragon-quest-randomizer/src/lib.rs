@@ -1,4 +1,6 @@
 use eframe::egui;
+use std::path::PathBuf;
+use std::sync::mpsc::{self, Receiver, Sender};
 
 mod randomizer;
 mod rom;
@@ -27,19 +29,25 @@ pub fn run() -> eframe::Result {
 enum RomState {
     Empty,
     Pending,
+    Loading,
     Loaded(Result<rom::Rom, rom::RomError>),
 }
 
 struct App {
     rom: RomState,
+    rom_tx: Sender<Result<rom::Rom, rom::RomError>>,
+    rom_rx: Receiver<Result<rom::Rom, rom::RomError>>,
     menu_bar: ui::MenuBar,
     editor: ui::Editor,
 }
 
 impl Default for App {
     fn default() -> Self {
+        let (rom_tx, rom_rx) = mpsc::channel();
         Self {
             rom: RomState::Empty,
+            rom_tx,
+            rom_rx,
             menu_bar: ui::MenuBar::new(),
             editor: ui::Editor::new(),
         }
@@ -54,8 +62,20 @@ impl eframe::App for App {
 
         if self.menu_bar.is_pending() {
             self.rom = RomState::Pending;
-        } else if let Some(rom) = self.menu_bar.retrieve_rom() {
+        } else if let Some(path) = self.menu_bar.retrieve_rom() {
+            self.rom = RomState::Loading;
+
+            let tx = self.rom_tx.clone();
+
+            std::thread::spawn(move || {
+                let result = rom::RomLoader::new(path).load();
+
+                let _ = tx.send(result);
+            });
+        } else if let Ok(rom) = self.rom_rx.try_recv() {
             self.rom = RomState::Loaded(rom);
+        } else if !matches!(self.rom, RomState::Loading | RomState::Loaded(_)) {
+            self.rom = RomState::Empty;
         }
     }
 
