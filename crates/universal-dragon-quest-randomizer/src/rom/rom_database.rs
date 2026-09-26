@@ -2,7 +2,7 @@ use super::{Platform, Region, Revision, RomFormat, RomHash, RomId};
 
 include!(concat!(env!("OUT_DIR"), "/rom_database.rs"));
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct RomDefinition {
     pub id: RomId,
     pub platform: Platform,

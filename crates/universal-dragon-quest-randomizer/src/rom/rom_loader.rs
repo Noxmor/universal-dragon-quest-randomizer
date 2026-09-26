@@ -26,6 +26,6 @@ impl RomLoader {
         // TODO: Fall back to structural ROM detection if the hash lookup fails.
         let definition = ROM_DATABASE.lookup(&hash).ok_or(Error::UnknownRom)?;
 
-        Ok(Rom::new(self.path.clone(), definition.clone()))
+        Ok(Rom::new(self.path.clone(), definition))
     }
 }

@@ -23,22 +23,26 @@ use std::path::PathBuf;
 
 pub struct Rom {
     path: PathBuf,
-    definition: RomDefinition,
+    pub id: RomId,
+    pub platform: Platform,
+    pub region: Region,
+    pub format: RomFormat,
+    pub revision: Revision,
 }
 
 impl Rom {
-    pub fn new(path: impl AsRef<Path>, definition: RomDefinition) -> Self {
+    pub fn new(path: impl AsRef<Path>, definition: &RomDefinition) -> Self {
         Self {
             path: path.as_ref().to_owned(),
-            definition,
+            id: definition.id,
+            platform: definition.platform,
+            region: definition.region,
+            format: definition.format,
+            revision: definition.revision,
         }
     }
 
     pub fn path(&self) -> &PathBuf {
         &self.path
-    }
-
-    pub fn definition(&self) -> &RomDefinition {
-        &self.definition
     }
 }
