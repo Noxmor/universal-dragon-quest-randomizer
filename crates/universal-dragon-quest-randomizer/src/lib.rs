@@ -3,6 +3,7 @@ use std::sync::mpsc::{self, Receiver, Sender};
 
 use crate::randomizer::RandomizerSettings;
 
+mod detection;
 mod randomizer;
 mod rom;
 mod ui;
