@@ -121,19 +121,15 @@ impl Editor {
                     .spacing([32.0, 8.0])
                     .striped(false)
                     .show(ui, |ui| {
-                        Self::info_item(ui, "ROM ID", &rom.definition().id.to_string());
+                        Self::info_item(ui, "ROM ID", &rom.id.to_string());
 
                         ui.end_row();
 
-                        Self::info_item(ui, "Region", &rom.definition().region.to_string());
+                        Self::info_item(ui, "Region", &rom.region.to_string());
 
                         ui.end_row();
 
-                        Self::info_item(
-                            ui,
-                            "Revision",
-                            &rom.definition().revision.value().to_string(),
-                        );
+                        Self::info_item(ui, "Revision", &rom.revision.value().to_string());
 
                         ui.end_row();
                     });

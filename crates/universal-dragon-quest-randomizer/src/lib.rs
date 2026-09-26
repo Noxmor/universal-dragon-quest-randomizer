@@ -3,6 +3,7 @@ use std::sync::mpsc::{self, Receiver, Sender};
 
 use crate::randomizer::RandomizerSettings;
 
+mod detection;
 mod randomizer;
 mod rom;
 mod ui;
@@ -31,13 +32,13 @@ enum RomState {
     Empty,
     Pending,
     Loading,
-    Loaded(Result<rom::Rom, rom::RomError>),
+    Loaded(Result<rom::Rom, rom::Error>),
 }
 
 struct App {
     rom: RomState,
-    rom_tx: Sender<Result<rom::Rom, rom::RomError>>,
-    rom_rx: Receiver<Result<rom::Rom, rom::RomError>>,
+    rom_tx: Sender<Result<rom::Rom, rom::Error>>,
+    rom_rx: Receiver<Result<rom::Rom, rom::Error>>,
     settings: RandomizerSettings,
     menu_bar: ui::MenuBar,
     editor: ui::Editor,
@@ -71,7 +72,7 @@ impl eframe::App for App {
             let tx = self.rom_tx.clone();
 
             std::thread::spawn(move || {
-                let result = rom::RomLoader::new(path).load();
+                let result = rom::Rom::load(path);
 
                 let _ = tx.send(result);
             });
