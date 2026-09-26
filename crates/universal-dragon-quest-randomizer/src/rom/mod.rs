@@ -23,9 +23,9 @@ use std::path::{Path, PathBuf};
 pub struct Rom {
     path: PathBuf,
     pub id: RomId,
-    pub platform: Platform,
+    pub _platform: Platform,
     pub region: Region,
-    pub format: RomFormat,
+    pub _format: RomFormat,
     pub revision: Revision,
 }
 
@@ -34,9 +34,9 @@ impl Rom {
         Self {
             path: path.as_ref().to_owned(),
             id: definition.id,
-            platform: definition.platform,
+            _platform: definition.platform,
             region: definition.region,
-            format: definition.format,
+            _format: definition.format,
             revision: definition.revision,
         }
     }
