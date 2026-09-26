@@ -71,7 +71,7 @@ impl eframe::App for App {
             let tx = self.rom_tx.clone();
 
             std::thread::spawn(move || {
-                let result = rom::RomLoader::new(path).load();
+                let result = rom::Rom::load(path);
 
                 let _ = tx.send(result);
             });

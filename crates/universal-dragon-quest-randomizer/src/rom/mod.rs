@@ -6,7 +6,6 @@ mod rom_database;
 mod rom_format;
 mod rom_hash;
 mod rom_id;
-mod rom_loader;
 
 pub use error::*;
 pub use platform::*;
@@ -16,11 +15,11 @@ pub use rom_database::*;
 pub use rom_format::*;
 pub use rom_hash::*;
 pub use rom_id::*;
-pub use rom_loader::*;
 
-use std::path::Path;
-use std::path::PathBuf;
+use std::fs;
+use std::path::{Path, PathBuf};
 
+#[derive(Debug)]
 pub struct Rom {
     path: PathBuf,
     pub id: RomId,
@@ -40,6 +39,21 @@ impl Rom {
             format: definition.format,
             revision: definition.revision,
         }
+    }
+
+    pub fn load(path: impl AsRef<Path>) -> Result<Self, Error> {
+        let data = fs::read(&path)?;
+
+        if data.is_empty() {
+            return Err(Error::Empty);
+        }
+
+        let hash = RomHash::from_bytes(&data);
+
+        // TODO: Fall back to structural ROM detection if the hash lookup fails.
+        let definition = ROM_DATABASE.lookup(&hash).ok_or(Error::UnknownRom)?;
+
+        Ok(Rom::new(path, definition))
     }
 
     pub fn path(&self) -> &PathBuf {
