@@ -1,3 +1,4 @@
+mod error;
 mod platform;
 mod region;
 mod revision;
@@ -7,6 +8,7 @@ mod rom_hash;
 mod rom_id;
 mod rom_loader;
 
+pub use error::*;
 pub use platform::*;
 pub use region::*;
 pub use revision::*;
