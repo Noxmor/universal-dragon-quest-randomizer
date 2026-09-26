@@ -19,6 +19,8 @@ pub use rom_id::*;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::detection;
+
 #[derive(Debug)]
 pub struct Rom {
     path: PathBuf,
@@ -42,18 +44,30 @@ impl Rom {
     }
 
     pub fn load(path: impl AsRef<Path>) -> Result<Self, Error> {
-        let data = fs::read(&path)?;
+        match detection::detect(&path) {
+            Ok(detection) => Ok(Self {
+                path: path.as_ref().to_owned(),
+                id: detection.id,
+                _platform: detection.platform,
+                region: detection.region,
+                _format: detection.format,
+                revision: detection.revision,
+            }),
+            Err(Error::UnknownRom) => {
+                let data = fs::read(&path)?;
 
-        if data.is_empty() {
-            return Err(Error::Empty);
+                if data.is_empty() {
+                    return Err(Error::Empty);
+                }
+
+                let hash = RomHash::from_bytes(&data);
+
+                let definition = ROM_DATABASE.lookup(&hash).ok_or(Error::UnknownRom)?;
+
+                Ok(Rom::new(path, definition))
+            }
+            Err(e) => Err(e),
         }
-
-        let hash = RomHash::from_bytes(&data);
-
-        // TODO: Fall back to structural ROM detection if the hash lookup fails.
-        let definition = ROM_DATABASE.lookup(&hash).ok_or(Error::UnknownRom)?;
-
-        Ok(Rom::new(path, definition))
     }
 
     pub fn path(&self) -> &PathBuf {
