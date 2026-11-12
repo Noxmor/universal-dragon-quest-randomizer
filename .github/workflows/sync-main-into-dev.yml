@@ -1,0 +1,73 @@
+name: Sync main into dev
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: sync-main-into-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-main-into-dev:
+    name: Sync main into dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find or create synchronization PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER=$(gh pr list \
+            --base dev \
+            --head main \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "Creating synchronization PR..."
+
+            PR_URL=$(gh pr create \
+              --base dev \
+              --head main \
+              --title "chore: sync main into dev" \
+              --body "Automatically synchronizes changes from main into dev.")
+
+            PR_NUMBER=$(gh pr view "$PR_URL" --json number --jq '.number')
+          else
+            echo "Found existing PR #$PR_NUMBER"
+          fi
+
+          echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Enable automatic merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER="${{ steps.pr.outputs.number }}"
+
+          echo "Enabling automatic merge for PR #$PR_NUMBER."
+
+          if gh pr merge "$PR_NUMBER" --auto --merge; then
+            echo "Automatic merge enabled."
+          else
+            echo "::warning::Could not enable automatic merge for PR #$PR_NUMBER."
+            echo "The PR will remain open for manual inspection or conflict resolution."
+          fi
