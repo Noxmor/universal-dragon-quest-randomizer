@@ -1,0 +1,53 @@
+"type: feat":
+  - head-branch:
+      - "^feat/"
+      - "^feature/"
+
+"type: fix":
+  - head-branch:
+      - "^fix/"
+      - "^bugfix/"
+
+"type: hotfix":
+  - head-branch:
+      - "^hotfix/"
+
+"type: chore":
+  - head-branch:
+      - "^chore/"
+
+"type: refactor":
+  - head-branch:
+      - "^refactor/"
+
+"type: perf":
+  - head-branch:
+      - "^perf/"
+
+"type: docs":
+  - head-branch:
+      - "^docs/"
+
+"type: test":
+  - head-branch:
+      - "^test/"
+
+"type: ci":
+  - head-branch:
+      - "^ci/"
+
+"area: ci":
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/workflows/**"
+          - ".github/actions/**"
+"area: docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "LICENSE"
+
+"area: tests":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "tests/**"
