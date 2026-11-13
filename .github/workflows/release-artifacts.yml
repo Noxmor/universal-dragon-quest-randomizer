@@ -33,6 +33,11 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
       - name: Build artifacts
         run: cargo build --release --locked --workspace --target ${{ matrix.target }}
 
