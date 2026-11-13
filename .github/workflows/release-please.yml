@@ -10,6 +10,7 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  actions: write
 
 jobs:
   release-please:
@@ -31,3 +32,10 @@ jobs:
           pr_number=$(printf '%s' "$PR_JSON" | jq -r '.number')
           echo "Enabling auto-merge on release PR #${pr_number}"
           gh pr merge --squash --auto --repo "${GITHUB_REPOSITORY}" "${pr_number}"
+
+      - name: Dispatch artifacts workflow
+        if: ${{ steps.release.outputs.releases_created }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag_name }}
+        run: gh workflow run release-artifacts.yml --repo "${GITHUB_REPOSITORY}" --ref "${TAG}"

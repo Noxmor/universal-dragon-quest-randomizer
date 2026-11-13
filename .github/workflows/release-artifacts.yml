@@ -1,0 +1,85 @@
+name: Release Artifacts
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-artifacts:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-24.04-arm
+          - target: x86_64-apple-darwin
+            os: macos-latest
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - target: aarch64-pc-windows-msvc
+            os: windows-11-arm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build artifacts
+        run: cargo build --release --locked --workspace --target ${{ matrix.target }}
+
+      - name: Discover binaries
+        shell: bash
+        run: |
+          cargo metadata --format-version 1 --no-deps --locked \
+            | jq -r '.packages[] | .targets[] | select(.kind[] == "bin") | .name' \
+            | sort -u > "$RUNNER_TEMP/binaries.txt"
+          echo "Binaries to package:"
+          cat "$RUNNER_TEMP/binaries.txt"
+
+      - name: Package artifacts
+        shell: bash
+        run: |
+          target="${{ matrix.target }}"
+          outdir="target/${target}/release"
+          repo="${GITHUB_REPOSITORY#*/}"
+          staging="dist/staging"
+          pkgroot="${staging}/${repo}"
+          mkdir -p "$pkgroot"
+
+          while IFS= read -r bin; do
+            [ -z "$bin" ] && continue
+            if [ -f "${outdir}/${bin}.exe" ]; then
+              cp "${outdir}/${bin}.exe" "$pkgroot/"
+            elif [ -f "${outdir}/${bin}" ]; then
+              cp "${outdir}/${bin}" "$pkgroot/"
+            else
+              echo "::error::Binary '${bin}' not found in ${outdir}"
+              exit 1
+            fi
+          done < "$RUNNER_TEMP/binaries.txt"
+
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            (cd "$staging" && 7z a "../${repo}-${target}.zip" "$repo") >/dev/null
+            echo "PACKAGED=dist/${repo}-${target}.zip" >> "$GITHUB_ENV"
+          else
+            (cd "$staging" && tar czf "../${repo}-${target}.tar.gz" "$repo")
+            echo "PACKAGED=dist/${repo}-${target}.tar.gz" >> "$GITHUB_ENV"
+          fi
+
+      - name: Upload artifacts to GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release upload "$TAG" "$PACKAGED" \
+            --repo "${GITHUB_REPOSITORY}" --clobber
