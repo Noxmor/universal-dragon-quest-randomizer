@@ -1,0 +1,33 @@
+name: release-please
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    env:
+      HAS_RELEASE_PAT: ${{ secrets.RELEASE_PLEASE_TOKEN != '' }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+
+      - name: Enable auto-merge on the release PR
+        if: ${{ env.HAS_RELEASE_PAT == 'true' && steps.release.outputs.pr }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          PR_JSON: ${{ steps.release.outputs.pr }}
+        run: |
+          pr_number=$(printf '%s' "$PR_JSON" | jq -r '.number')
+          echo "Enabling auto-merge on release PR #${pr_number}"
+          gh pr merge --squash --auto --repo "${GITHUB_REPOSITORY}" "${pr_number}"
