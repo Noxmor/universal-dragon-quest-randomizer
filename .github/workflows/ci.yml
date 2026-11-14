@@ -10,8 +10,8 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  rust:
-    name: Rust
+  format:
+    name: Format
     runs-on: ubuntu-latest
 
     steps:
@@ -24,14 +24,80 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
 
+  deps:
+    name: Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Check dependencies
         uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          rust-version: "stable"
+
+  clippy:
+    name: Clippy (${{ matrix.label }})
+    needs: [format, deps]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: default
+            features: ""
+          - label: all
+            features: "--all-features"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Run clippy
-        run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets ${{ matrix.features }} -- -D warnings
+
+  test:
+    name: Test (${{ matrix.label }})
+    needs: [format, deps]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: debug, default
+            profile: ""
+            features: ""
+          - label: debug, all
+            profile: ""
+            features: "--all-features"
+          - label: release, default
+            profile: "--release"
+            features: ""
+          - label: release, all
+            profile: "--release"
+            features: "--all-features"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Build
-        run: cargo build --locked --workspace --all-features
+        run: cargo build --locked --workspace ${{ matrix.features }} ${{ matrix.profile }}
 
       - name: Run tests
-        run: cargo test --locked --workspace --all-features
+        run: cargo test --locked --workspace ${{ matrix.features }} ${{ matrix.profile }}
+
+  rust:
+    name: Rust
+    if: always()
+    needs: [format, deps, clippy, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all jobs succeeded
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
