@@ -55,13 +55,13 @@ jobs:
           rust-version: "stable"
 
   clippy:
-    name: Clippy (${{ matrix.target }}, ${{ matrix.profile }})
+    name: Clippy (${{ matrix.platform.target }}, ${{ matrix.profile }})
     needs: [format, deps, platform-matrix]
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(needs.platform-matrix.outputs.matrix) }}
+        platform: ${{ fromJSON(needs.platform-matrix.outputs.matrix) }}
         profile: ${{ fromJSON(github.base_ref == 'main' && '["debug","release"]' || '["debug"]') }}
 
     steps:
@@ -71,24 +71,24 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: ${{ matrix.platform.target }}
 
       - name: Run clippy (debug)
         if: matrix.profile == 'debug'
-        run: cargo clippy --target ${{ matrix.target }} --locked --workspace --all-targets -- -D warnings
+        run: cargo clippy --target ${{ matrix.platform.target }} --locked --workspace --all-targets -- -D warnings
 
       - name: Run clippy (release)
         if: matrix.profile == 'release'
-        run: cargo clippy --target ${{ matrix.target }} --release --locked --workspace --all-targets -- -D warnings
+        run: cargo clippy --target ${{ matrix.platform.target }} --release --locked --workspace --all-targets -- -D warnings
 
   test:
-    name: Test (${{ matrix.target }}, ${{ matrix.profile }})
+    name: Test (${{ matrix.platform.target }}, ${{ matrix.profile }})
     needs: [format, deps, platform-matrix]
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(needs.platform-matrix.outputs.matrix) }}
+        platform: ${{ fromJSON(needs.platform-matrix.outputs.matrix) }}
         profile: ${{ fromJSON(github.base_ref == 'main' && '["debug","release"]' || '["debug"]') }}
 
     steps:
@@ -98,23 +98,23 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: ${{ matrix.platform.target }}
 
       - name: Build (debug)
         if: matrix.profile == 'debug'
-        run: cargo build --target ${{ matrix.target }} --locked --workspace
+        run: cargo build --target ${{ matrix.platform.target }} --locked --workspace
 
       - name: Run tests (debug)
         if: matrix.profile == 'debug'
-        run: cargo test --target ${{ matrix.target }} --locked --workspace
+        run: cargo test --target ${{ matrix.platform.target }} --locked --workspace
 
       - name: Build (release)
         if: matrix.profile == 'release'
-        run: cargo build --target ${{ matrix.target }} --release --locked --workspace
+        run: cargo build --target ${{ matrix.platform.target }} --release --locked --workspace
 
       - name: Run tests (release)
         if: matrix.profile == 'release'
-        run: cargo test --target ${{ matrix.target }} --release --locked --workspace
+        run: cargo test --target ${{ matrix.platform.target }} --release --locked --workspace
 
   rust:
     name: Rust
