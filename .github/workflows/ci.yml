@@ -6,6 +6,9 @@ on:
       - dev
       - main
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -37,59 +40,90 @@ jobs:
           rust-version: "stable"
 
   clippy:
-    name: Clippy (${{ matrix.label }})
+    name: Clippy (${{ matrix.target }}, ${{ matrix.profile }})
     needs: [format, deps]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - label: default
-            features: ""
-          - label: all
-            features: "--all-features"
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-24.04-arm
+          - target: x86_64-apple-darwin
+            os: macos-15-intel
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - target: aarch64-pc-windows-msvc
+            os: windows-11-arm
+        profile: ${{ fromJSON(github.base_ref == 'main' && '["debug","release"]' || '["debug"]') }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
 
-      - name: Run clippy
-        run: cargo clippy --locked --workspace --all-targets ${{ matrix.features }} -- -D warnings
+      - name: Run clippy (debug)
+        if: matrix.profile == 'debug'
+        run: cargo clippy --target ${{ matrix.target }} --locked --workspace --all-targets -- -D warnings
+
+      - name: Run clippy (release)
+        if: matrix.profile == 'release'
+        run: cargo clippy --target ${{ matrix.target }} --release --locked --workspace --all-targets -- -D warnings
 
   test:
-    name: Test (${{ matrix.label }})
+    name: Test (${{ matrix.target }}, ${{ matrix.profile }})
     needs: [format, deps]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - label: debug, default
-            profile: ""
-            features: ""
-          - label: debug, all
-            profile: ""
-            features: "--all-features"
-          - label: release, default
-            profile: "--release"
-            features: ""
-          - label: release, all
-            profile: "--release"
-            features: "--all-features"
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-24.04-arm
+          - target: x86_64-apple-darwin
+            os: macos-15-intel
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+          - target: aarch64-pc-windows-msvc
+            os: windows-11-arm
+        profile: ${{ fromJSON(github.base_ref == 'main' && '["debug","release"]' || '["debug"]') }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
 
-      - name: Build
-        run: cargo build --locked --workspace ${{ matrix.features }} ${{ matrix.profile }}
+      - name: Build (debug)
+        if: matrix.profile == 'debug'
+        run: cargo build --target ${{ matrix.target }} --locked --workspace
 
-      - name: Run tests
-        run: cargo test --locked --workspace ${{ matrix.features }} ${{ matrix.profile }}
+      - name: Run tests (debug)
+        if: matrix.profile == 'debug'
+        run: cargo test --target ${{ matrix.target }} --locked --workspace
+
+      - name: Build (release)
+        if: matrix.profile == 'release'
+        run: cargo build --target ${{ matrix.target }} --release --locked --workspace
+
+      - name: Run tests (release)
+        if: matrix.profile == 'release'
+        run: cargo test --target ${{ matrix.target }} --release --locked --workspace
 
   rust:
     name: Rust
