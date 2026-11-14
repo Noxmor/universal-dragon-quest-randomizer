@@ -22,13 +22,13 @@ jobs:
           echo "matrix=$(jq -c . .github/platform-matrix.json)" >> "$GITHUB_OUTPUT"
 
   release-artifacts:
-    name: Build ${{ matrix.target }}
+    name: Build ${{ matrix.platform.target }}
     needs: platform-matrix
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(needs.platform-matrix.outputs.matrix) }}
+        platform: ${{ fromJSON(needs.platform-matrix.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -37,10 +37,10 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: ${{ matrix.platform.target }}
 
       - name: Build artifacts
-        run: cargo build --release --locked --workspace --target ${{ matrix.target }}
+        run: cargo build --release --locked --workspace --target ${{ matrix.platform.target }}
 
       - name: Discover binaries
         shell: bash
@@ -54,7 +54,7 @@ jobs:
       - name: Package artifacts
         shell: bash
         run: |
-          target="${{ matrix.target }}"
+          target="${{ matrix.platform.target }}"
           outdir="target/${target}/release"
           repo="${GITHUB_REPOSITORY#*/}"
           staging="dist/staging"
