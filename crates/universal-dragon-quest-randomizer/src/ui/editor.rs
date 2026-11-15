@@ -9,8 +9,8 @@ use strum_macros::EnumIter;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 enum ConfigCategory {
-    Encounters,
     General,
+    Encounters,
     Shops,
     Skills,
     Synthesis,
