@@ -9,20 +9,38 @@ use strum_macros::EnumIter;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
 enum ConfigCategory {
-    Test, // TODO: Replace
+    Encounters,
+    General,
+    Shops,
+    Skills,
+    Synthesis,
 }
 
 impl ConfigCategory {
     pub fn name(self) -> &'static str {
         match self {
-            Self::Test => "Test",
+            Self::Encounters => "Encounters",
+            Self::General => "General",
+            Self::Shops => "Shops",
+            Self::Skills => "Skills",
+            Self::Synthesis => "Synthesis",
         }
     }
 
     pub fn description(self) -> &'static str {
         match self {
-            Self::Test => "Test.",
+            Self::Encounters => "Randomizes encounters.",
+            Self::General => "General configuration.",
+            Self::Shops => "Randomizes shops.",
+            Self::Skills => "Randomizes skills.",
+            Self::Synthesis => "Randomizes synthesis recipes.",
         }
+    }
+}
+
+impl Default for ConfigCategory {
+    fn default() -> Self {
+        Self::General
     }
 }
 
@@ -34,7 +52,7 @@ pub struct Editor {
 impl Editor {
     pub fn new() -> Self {
         Self {
-            selected_category: ConfigCategory::Test,
+            selected_category: ConfigCategory::default(),
             seed: String::new(),
         }
     }
@@ -79,7 +97,7 @@ impl Editor {
 
                             ui.add_space(12.0);
 
-                            self.render_config_editor(ui);
+                            self.render_config_editor(ui, cfg);
                         }
                         Err(e) => {
                             ui.add_space((available_height * 0.28).max(48.0));
@@ -214,7 +232,7 @@ impl Editor {
         });
     }
 
-    fn render_config_editor(&mut self, ui: &mut egui::Ui) {
+    fn render_config_editor(&mut self, ui: &mut egui::Ui, cfg: &mut RandomizerConfig) {
         egui::Frame::group(ui.style())
             .inner_margin(egui::Margin::same(12))
             .stroke(egui::Stroke::new(
@@ -237,7 +255,7 @@ impl Editor {
 
                     ui.add_space(12.0);
 
-                    self.render_category_content(ui);
+                    self.render_category_content(ui, cfg);
                 });
             });
     }
@@ -268,7 +286,7 @@ impl Editor {
             });
     }
 
-    fn render_category_content(&self, ui: &mut egui::Ui) {
+    fn render_category_content(&self, ui: &mut egui::Ui, cfg: &mut RandomizerConfig) {
         ui.set_min_height(ui.available_height());
     }
 }
