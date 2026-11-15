@@ -288,7 +288,7 @@ impl Editor {
             });
     }
 
-    fn render_category_content(&self, ui: &mut egui::Ui, cfg: &mut RandomizerConfig) {
+    fn render_category_content(&self, ui: &mut egui::Ui, _cfg: &mut RandomizerConfig) {
         ui.set_min_height(ui.available_height());
     }
 }
