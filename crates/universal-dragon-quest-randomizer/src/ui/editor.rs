@@ -265,24 +265,26 @@ impl Editor {
             .id_salt("config_categories")
             .max_width(190.0)
             .show(ui, |ui| {
-                ui.add_space(8.0);
+                ui.horizontal(|ui| {
+                    ui.add_space(8.0);
 
-                for category in ConfigCategory::iter() {
-                    let selected = self.selected_category == category;
+                    for category in ConfigCategory::iter() {
+                        let selected = self.selected_category == category;
 
-                    let response = ui.selectable_label(
-                        selected,
-                        egui::RichText::new(category.name()).size(14.0),
-                    );
+                        let response = ui.selectable_label(
+                            selected,
+                            egui::RichText::new(category.name()).size(14.0),
+                        );
 
-                    if response.clicked() {
-                        self.selected_category = category;
+                        if response.clicked() {
+                            self.selected_category = category;
+                        }
+
+                        if response.hovered() {
+                            response.on_hover_text(category.description());
+                        }
                     }
-
-                    if response.hovered() {
-                        response.on_hover_text(category.description());
-                    }
-                }
+                });
             });
     }
 
