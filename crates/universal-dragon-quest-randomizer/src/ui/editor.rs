@@ -7,8 +7,9 @@ use eframe::egui;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, EnumIter)]
 enum ConfigCategory {
+    #[default]
     General,
     Encounters,
     Shops,
@@ -35,12 +36,6 @@ impl ConfigCategory {
             Self::Skills => "Randomizes skills.",
             Self::Synthesis => "Randomizes synthesis recipes.",
         }
-    }
-}
-
-impl Default for ConfigCategory {
-    fn default() -> Self {
-        Self::General
     }
 }
 
