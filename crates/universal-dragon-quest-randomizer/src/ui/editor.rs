@@ -1,6 +1,6 @@
 use crate::{
     APP_TITLE, RomState,
-    randomizer::{RandomizerSettings, Seed},
+    randomizer::{RandomizerConfig, Seed},
     rom::Rom,
 };
 use eframe::egui;
@@ -8,11 +8,11 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, EnumIter)]
-enum SettingsCategory {
+enum ConfigCategory {
     Test, // TODO: Replace
 }
 
-impl SettingsCategory {
+impl ConfigCategory {
     pub fn name(self) -> &'static str {
         match self {
             Self::Test => "Test",
@@ -27,18 +27,18 @@ impl SettingsCategory {
 }
 
 pub struct Editor {
-    selected_category: SettingsCategory,
+    selected_category: ConfigCategory,
     seed: String,
 }
 
 impl Editor {
     pub fn new() -> Self {
         Self {
-            selected_category: SettingsCategory::Test,
+            selected_category: ConfigCategory::Test,
             seed: String::new(),
         }
     }
-    pub fn render(&mut self, ui: &mut egui::Ui, rom: &RomState, settings: &mut RandomizerSettings) {
+    pub fn render(&mut self, ui: &mut egui::Ui, rom: &RomState, cfg: &mut RandomizerConfig) {
         egui::CentralPanel::default().show(ui, |ui| {
             let available_height = ui.available_height();
 
@@ -74,12 +74,12 @@ impl Editor {
 
                             ui.columns(2, |columns| {
                                 self.render_rom_information(&mut columns[0], rom);
-                                self.render_general(&mut columns[1], settings);
+                                self.render_general(&mut columns[1], cfg);
                             });
 
                             ui.add_space(12.0);
 
-                            self.render_settings_editor(ui);
+                            self.render_config_editor(ui);
                         }
                         Err(e) => {
                             ui.add_space((available_height * 0.28).max(48.0));
@@ -136,7 +136,7 @@ impl Editor {
             });
     }
 
-    fn render_general(&mut self, ui: &mut egui::Ui, settings: &mut RandomizerSettings) {
+    fn render_general(&mut self, ui: &mut egui::Ui, cfg: &mut RandomizerConfig) {
         egui::Frame::group(ui.style())
             .inner_margin(egui::Margin::same(12))
             .stroke(egui::Stroke::new(
@@ -149,7 +149,7 @@ impl Editor {
                 ui.separator();
                 ui.add_space(8.0);
 
-                egui::Grid::new("general_settings")
+                egui::Grid::new("general_config")
                     .num_columns(2)
                     .spacing([20.0, 10.0])
                     .show(ui, |ui| {
@@ -174,11 +174,11 @@ impl Editor {
                             if response.lost_focus() && !self.seed.is_empty() {
                                 match self.seed.parse::<Seed>() {
                                     Ok(seed) => {
-                                        settings.seed = seed;
+                                        cfg.seed = seed;
                                     }
                                     Err(_) => {
                                         self.seed = u64::MAX.to_string();
-                                        settings.seed = u64::MAX;
+                                        cfg.seed = u64::MAX;
                                     }
                                 }
                             }
@@ -187,7 +187,7 @@ impl Editor {
                                 let seed: Seed = rand::random();
 
                                 self.seed = seed.to_string();
-                                settings.seed = seed;
+                                cfg.seed = seed;
                             }
                         });
 
@@ -214,7 +214,7 @@ impl Editor {
         });
     }
 
-    fn render_settings_editor(&mut self, ui: &mut egui::Ui) {
+    fn render_config_editor(&mut self, ui: &mut egui::Ui) {
         egui::Frame::group(ui.style())
             .inner_margin(egui::Margin::same(12))
             .stroke(egui::Stroke::new(
@@ -244,12 +244,12 @@ impl Editor {
 
     fn render_category_navigation_bar(&mut self, ui: &mut egui::Ui) {
         egui::ScrollArea::vertical()
-            .id_salt("settings_categories")
+            .id_salt("config_categories")
             .max_width(190.0)
             .show(ui, |ui| {
                 ui.add_space(8.0);
 
-                for category in SettingsCategory::iter() {
+                for category in ConfigCategory::iter() {
                     let selected = self.selected_category == category;
 
                     let response = ui.selectable_label(

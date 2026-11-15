@@ -1,5 +1,5 @@
 #[derive(Debug, Clone, Default)]
-pub struct RandomizerSettings {
+pub struct RandomizerConfig {
     pub seed: Seed,
 }
 

@@ -1,3 +1,3 @@
-mod settings;
+mod config;
 
-pub use settings::*;
+pub use config::*;

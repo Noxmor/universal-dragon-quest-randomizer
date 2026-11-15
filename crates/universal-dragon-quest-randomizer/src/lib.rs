@@ -1,7 +1,7 @@
 use eframe::egui;
 use std::sync::mpsc::{self, Receiver, Sender};
 
-use crate::randomizer::RandomizerSettings;
+use crate::randomizer::RandomizerConfig;
 
 mod detection;
 mod randomizer;
@@ -39,7 +39,7 @@ struct App {
     rom: RomState,
     rom_tx: Sender<Result<rom::Rom, rom::Error>>,
     rom_rx: Receiver<Result<rom::Rom, rom::Error>>,
-    settings: RandomizerSettings,
+    config: RandomizerConfig,
     menu_bar: ui::MenuBar,
     editor: ui::Editor,
 }
@@ -51,7 +51,7 @@ impl Default for App {
             rom: RomState::Empty,
             rom_tx,
             rom_rx,
-            settings: RandomizerSettings::default(),
+            config: RandomizerConfig::default(),
             menu_bar: ui::MenuBar::new(),
             editor: ui::Editor::new(),
         }
@@ -85,6 +85,6 @@ impl eframe::App for App {
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         self.menu_bar.render(ui);
-        self.editor.render(ui, &self.rom, &mut self.settings);
+        self.editor.render(ui, &self.rom, &mut self.config);
     }
 }
