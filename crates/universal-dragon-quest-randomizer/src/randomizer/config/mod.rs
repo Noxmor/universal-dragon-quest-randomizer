@@ -16,9 +16,9 @@ pub use synthesis::*;
 pub struct RandomizerConfig {
     pub seed: Seed,
 
-    pub encounters: EncountersConfig,
-    pub general: GeneralConfig,
-    pub shops: ShopsConfig,
-    pub skills: SkillsConfig,
-    pub synthesis: SynthesisConfig,
+    pub _encounters: EncountersConfig,
+    pub _general: GeneralConfig,
+    pub _shops: ShopsConfig,
+    pub _skills: SkillsConfig,
+    pub _synthesis: SynthesisConfig,
 }
